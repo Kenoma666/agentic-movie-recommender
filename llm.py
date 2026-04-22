@@ -19,6 +19,7 @@ import pandas as pd
 
 MODEL = "gemma4:31b-cloud"
 DATA_PATH = os.path.join(os.path.dirname(__file__), "tmdb_top1000_movies.csv")
+XLSX_DATA_PATH = DATA_PATH.replace(".csv", ".xlsx")
 MAX_DESCRIPTION_CHARS = 500
 LLM_SHORTLIST_SIZE = 12
 
@@ -122,10 +123,16 @@ TEXT_NORMALIZATIONS = {
 
 TOKEN_PATTERN = re.compile(r"[a-z0-9']+")
 
-try:
+if os.path.exists(DATA_PATH):
     TOP_MOVIES = pd.read_csv(DATA_PATH)
-except FileNotFoundError:
-    TOP_MOVIES = pd.read_excel(DATA_PATH.replace(".csv", ".xlsx"))
+elif os.path.exists(XLSX_DATA_PATH):
+    TOP_MOVIES = pd.read_excel(XLSX_DATA_PATH)
+else:
+    raise FileNotFoundError(
+        "Movie dataset not found. Expected one of: "
+        f"{DATA_PATH} or {XLSX_DATA_PATH}. "
+        "Make sure the dataset file is included in the deployed project."
+    )
 
 TOP_MOVIES.columns = [c.lower() for c in TOP_MOVIES.columns]
 ID_COL = "id" if "id" in TOP_MOVIES.columns else "tmdb_id"
