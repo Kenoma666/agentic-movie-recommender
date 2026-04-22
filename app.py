@@ -29,6 +29,11 @@ def read_root() -> dict:
     return {"status": "ok", "message": "Movie recommender is running."}
 
 
+@app.get("/kaithhealth")
+def kaithhealth() -> dict:
+    return {"status": "ok"}
+
+
 @app.post("/recommend", response_model=RecommendResponse)
 def recommend(request: RecommendRequest) -> RecommendResponse:
     history_names = [item.name for item in request.history]
