@@ -156,8 +156,78 @@ Run the test suite:
 OLLAMA_API_KEY=your_key_here python test.py
 ```
 
+## Leapcell Deployment
+
+This repo now includes a FastAPI entrypoint in `app.py` for deployment.
+The main inference logic still lives in `llm.py`, and the API layer simply
+maps HTTP requests to `get_recommendation()`.
+
+### API shape
+
+`POST /recommend`
+
+Example request:
+
+```json
+{
+  "user_id": 1,
+  "preferences": "I love superheroes and feel-good buddy cop stories.",
+  "history": [
+    {
+      "tmdb_id": 24428,
+      "name": "The Avengers"
+    }
+  ]
+}
+```
+
+Example response:
+
+```json
+{
+  "user_id": 1,
+  "tmdb_id": 209112,
+  "description": "Batman v Superman: Dawn of Justice stands out for action, adventure, superhero, with action, adventure, fantasy elements that line up well with what you asked for."
+}
+```
+
+### Leapcell settings
+
+Based on the FastAPI deployment flow, use:
+
+- Runtime: `Python`
+- Build Command: `pip install -r requirements.txt`
+- Start Command: `uvicorn app:app --host 0.0.0.0 --port 8080`
+- Port: `8080`
+
+### Environment variables
+
+Set this in Leapcell:
+
+- `OLLAMA_API_KEY`: your Ollama API key from `https://ollama.com/settings/keys`
+
+### Test after deployment
+
+Replace the domain with your own Leapcell URL:
+
+```bash
+curl -X POST https://agentic-movie-recommender-guanjiale9400-6nogk2wj.leapcell.dev/recommend \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": 1,
+    "preferences": "I love superheroes and feel-good buddy cop stories.",
+    "history": [{"tmdb_id": 24428, "name": "The Avengers"}]
+  }'
+```
+
 ## Notes
 
+- The grader only requires `tmdb_id` and `description` in the function return
+  value.
+- The CLI output additionally shows the movie `title` to make manual testing
+  easier.
+- No API keys are hard-coded. `OLLAMA_API_KEY` is always read from the
+  environment.
 - The grader only requires `tmdb_id` and `description` in the function return
   value.
 - The CLI output additionally shows the movie `title` to make manual testing
